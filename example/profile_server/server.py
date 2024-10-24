@@ -224,7 +224,7 @@ class ServerOnline(ServerBase):
 
             self.query_id += 1
             # There is a error?? Shall return output_len rather self.max_gen_len? So do sampled_output_len?
-            return [self.inputs[self.prefill_idx[sampled_prompt_len][sampled_output_len]][0], prompt_len, self.max_gen_len, sampled_prompt_len, self.max_gen_len, delta_time, self.query_time]
+            return [self.inputs[self.prefill_idx[sampled_prompt_len][sampled_output_len]][0], prompt_len, output_len, sampled_prompt_len, sampled_output_len, delta_time, self.query_time]
 
     def __init__(self, model_path, data_path, monitor, backend="vllm",
                  device="gpu", log_path="./server_log_trace_gamma.json",
@@ -262,7 +262,7 @@ class ServerOnline(ServerBase):
                 # async
                 _task_list.append(
                     asyncio.create_task(
-                        vllm_inference_call_server(_prompt, in_num, out_num, sampled_in_num, sampled_out_num,
+                        vllm_inference_call_server(_prompt, in_num, 16, sampled_in_num, sampled_out_num,
                                                    _sleep_time, self.config, self.detail_logger, detail_event_id)
                     ))
             elif self.backend == "lightllm":
