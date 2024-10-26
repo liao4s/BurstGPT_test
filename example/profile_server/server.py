@@ -261,7 +261,7 @@ class ServerOnline(ServerBase):
                 # async
                 _task_list.append(
                     asyncio.create_task(
-                        vllm_inference_call_server(_prompt, in_num, out_num, sampled_in_num, sampled_out_num,
+                        vllm_inference_call_server(_prompt, in_num, 16, sampled_in_num, sampled_out_num,
                                                    _sleep_time, self.config, self.detail_logger, detail_event_id)
                     ))
             elif self.backend == "lightllm":
