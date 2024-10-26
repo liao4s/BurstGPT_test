@@ -64,8 +64,11 @@ def add_parser_arg(parser):
     parser.add_argument("--scale", type=float,  default=1,
                         help="Scale trace, 100 means 100 times faster, use 1 by default")
 
-    parser.add_argument("--gpu_log_path", type=str, default='./logs/gpu_log.json',
+    parser.add_argument("--gpu_log_path", type=str, default='./logs/gpu_log/gpu_log.json',
                         help="GPU log loading path")
+    
+    parser.add_argument("--vllm_log_path", type=str, default='./logs/vllm_log/vllm_log.csv',
+                        help="vLLM log loading path")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -89,9 +92,12 @@ if __name__ == "__main__":
     prompt_config['conv_or_api'] = args.conv_or_api
     prompt_config['scale'] = args.scale
     prompt_config['prompt_num'] = args.prompt_num
-    
+
+    with open(args.vllm_log_path, "w") as f:
+        f.write("timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,"
+                ",num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
+        
     print(prompt_config)
-    print({"gpu_log_path": args.gpu_log_path})
     # monitor GPU
     monitor = Monitor(args.gpu_log_path)
     config = Config(server_config=server_config, prompt_config=prompt_config)
