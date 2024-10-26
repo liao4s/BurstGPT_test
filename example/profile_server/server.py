@@ -227,7 +227,7 @@ class ServerOnline(ServerBase):
 
     def __init__(self, model_path, data_path, monitor, backend="vllm",
                  device="gpu", log_path="./server_log_trace_gamma.json",
-                 config=None, detail_log_path="./detail_server_log_trace_gamma_13b_conv.json"):
+                 config=None, detail_log_path="./detail_server_log_trace_gamma_13b_conv.json", vllm_log_path="./logs/vllm_log/vllm_log.csv"):
         ServerBase.__init__(self, model_path, data_path, backend, device,
                             log_path, config)
         self.qps = config.server_config.get('qps')
@@ -236,6 +236,7 @@ class ServerOnline(ServerBase):
         self.detail_logger = Logger(self.detail_log_path)
         self.scale = config.server_config.get('scale')
         self.monitor = monitor
+        self.vllm_log_path = vllm_log_path
 
         self.inputs = []
         for idx, data in self.dataset.data.items():
@@ -296,5 +297,7 @@ class ServerOnline(ServerBase):
     def end_profile(self):
         self.save_log()
         self.monitor.save_gpu_log()
+        os.system(f"mv ./logs/vllm_log/vllm_log.csv {self.vllm_log_path}")
+        print("Load vllm log successfully!!")
         print("Os Exit!!")
         os._exit(0)

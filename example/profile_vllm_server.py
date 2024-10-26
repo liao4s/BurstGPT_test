@@ -93,9 +93,9 @@ if __name__ == "__main__":
     prompt_config['scale'] = args.scale
     prompt_config['prompt_num'] = args.prompt_num
 
-    with open(args.vllm_log_path, "w") as f:
+    with open("/root/lss/BurstGPT_test/example/logs/vllm_log/vllm_log.csv", "w") as f:
         f.write("timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,"
-                ",num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
+                "num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
         
     print(prompt_config)
     # monitor GPU
@@ -107,7 +107,8 @@ if __name__ == "__main__":
                            log_path=args.log_path,
                            config=config,
                            detail_log_path=args.detail_log_path,
-                           monitor=monitor
+                           monitor=monitor,
+                           vllm_log_path=args.vllm_log_path
                            )
     # Monitor GPU while sending query
     try:
@@ -123,4 +124,5 @@ if __name__ == "__main__":
         print("Stop")
         monitor.save_gpu_log()
         server.save_log()
+        os.system(f"mv ./logs/vllm_log/vllm_log.csv {args.vllm_log_path}")
         print("Exit!")
