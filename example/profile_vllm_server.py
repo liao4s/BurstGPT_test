@@ -67,7 +67,7 @@ def add_parser_arg(parser):
     parser.add_argument("--gpu_log_path", type=str, default='./logs/gpu_log/gpu_log.json',
                         help="GPU log loading path")
     
-    parser.add_argument("--vllm_log_path", type=str, default='./logs/vllm_log/vllm_log.csv',
+    parser.add_argument("--vllm_log_path", type=str, default='',
                         help="vLLM log loading path")
 
 if __name__ == "__main__":
@@ -93,10 +93,11 @@ if __name__ == "__main__":
     prompt_config['scale'] = args.scale
     prompt_config['prompt_num'] = args.prompt_num
 
-    with open("/root/lss/BurstGPT_test/example/logs/vllm_log/vllm_log.csv", "w") as f:
-        f.write("timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,"
-                "num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
-        
+    if len(args.vllm_log_path) != 0:
+        with open("/root/lss/BurstGPT_test/example/logs/vllm_log/vllm_log.csv", "w") as f:
+            f.write("timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,"
+                    "num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
+            
     print(prompt_config)
     # monitor GPU
     monitor = Monitor(args.gpu_log_path)
@@ -118,11 +119,11 @@ if __name__ == "__main__":
         monitor_thread.start()
         server_thread.start()
         server_thread.join()
-        monitor_thread.join()
         
     except :
         print("Stop")
         monitor.save_gpu_log()
         server.save_log()
-        os.system(f"mv ./logs/vllm_log/vllm_log.csv {args.vllm_log_path}")
+        if len(args.vllm_log_path) != 0:
+            os.system(f"mv ./logs/vllm_log/vllm_log.csv {args.vllm_log_path}")
         print("Exit!")
