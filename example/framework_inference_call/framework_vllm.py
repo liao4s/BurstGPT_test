@@ -8,6 +8,7 @@ import asyncio
 import time
 import json
 
+from collections import OrderedDict
 from monitor_gpu.monitor import Monitor
 
 async def vllm_inference_call_server(prompt, in_num, out_num, sampled_in_num, sampled_out_num, sleep_time, config, logger, event_id) -> dict:
@@ -15,18 +16,23 @@ async def vllm_inference_call_server(prompt, in_num, out_num, sampled_in_num, sa
     monitor = Monitor("./logs/test.json")
     timeout = aiohttp.ClientTimeout(total=4 * 60 * 60)
     print(f"[INFO] Start {event_id}, after sleep: {sleep_time}")
+    headers = OrderedDict({"Content-Type": "application/json"})
     async with aiohttp.ClientSession(timeout=timeout) as session:
-        generation_input = {
+        payload = {
+            "model": config.served_model_name,
             "prompt": prompt,
             "stream": config.server_config['stream'],
-            "ignore_eos": False,
+            "top_p": 1.0,
+            "best_of": 1,
+            "ignore_eos": True,
             "max_tokens": int(out_num),
+            "nvext": {"ignore_eos": True},
             "temperature": config.server_config['temperature'],
         }
         first_chunk_time = 0
         start_time = time.perf_counter()
         async with session.post(
-            f"http://{config.server_config['host']}:{config.server_config['port']}/generate", json=generation_input
+            f"http://{config.server_config['host']}:{config.server_config['port']}/v1/completions", headers = headers, json=payload
         ) as resp:
             
             if resp.status != 200:

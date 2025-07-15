@@ -1,0 +1,1 @@
+timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,num_pending,gpu_kvcache_usage,cpu_kvcache_usage

@@ -16,8 +16,8 @@ sys.path.append("../")
 
 # reference mlperf inference
 class ServerBase(object):
-    def __init__(self, model_path, data_path, backend,
-                 device, log_path, config):
+    def __init__(self, model_path, data_path,
+                 device, log_path, config, backend="vllm"):
         self.config = config
         self.model_path = model_path
         self.data_path = data_path
@@ -223,18 +223,18 @@ class ServerOnline(ServerBase):
 
             self.query_id += 1
             # There is a error?? Shall return output_len rather self.max_gen_len? So do sampled_output_len?
-            return [self.inputs[self.prefill_idx[sampled_prompt_len][sampled_output_len]][0], prompt_len, self.max_gen_len, sampled_prompt_len, self.max_gen_len, delta_time, self.query_time]
+            return [self.inputs[self.prefill_idx[sampled_prompt_len][sampled_output_len]][0], prompt_len, sampled_output_len, sampled_prompt_len, self.max_gen_len, delta_time, self.query_time]
 
-    def __init__(self, model_path, data_path, monitor, backend="vllm",
+    def __init__(self, model_path, data_path, monitor=None, backend="vllm",
                  device="gpu", log_path="./server_log_trace_gamma.json",
                  config=None, detail_log_path="./detail_server_log_trace_gamma_13b_conv.json", vllm_log_path="./logs/vllm_log/vllm_log.csv"):
-        ServerBase.__init__(self, model_path, data_path, backend, device,
-                            log_path, config)
-        self.qps = config.server_config.get('qps')
+        ServerBase.__init__(self, model_path=model_path, data_path=data_path, backend=backend, device=device,
+                            log_path=log_path, config=config)
+        self.qps = config.server_config.get('qps', None)
         self.burstgpt_path = config.server_config.get('burstgpt_path')
         self.detail_log_path = detail_log_path
         self.detail_logger = Logger(self.detail_log_path)
-        self.scale = config.server_config.get('scale')
+        self.scale = config.server_config.get('scale', None)
         self.monitor = monitor
         self.vllm_log_path = vllm_log_path
 

@@ -70,6 +70,9 @@ def add_parser_arg(parser):
     parser.add_argument("--vllm_log_path", type=str, default='',
                         help="vLLM log loading path")
 
+    parser.add_argument("--served_model_name", type=str, default='',
+                        help="served model name, used for vLLM server")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_parser_arg(parser)
@@ -94,14 +97,14 @@ if __name__ == "__main__":
     prompt_config['prompt_num'] = args.prompt_num
 
     if len(args.vllm_log_path) != 0:
-        with open("/root/lss/BurstGPT_test/example/logs/vllm_log/vllm_log.csv", "w") as f:
+        with open("./logs/vllm_log/vllm_log.csv", "w") as f:
             f.write("timestamp,prompt_throughput,generation_throughput,num_running,num_swapped,"
                     "num_pending,gpu_kvcache_usage,cpu_kvcache_usage\n")
             
     print(prompt_config)
     # monitor GPU
     monitor = Monitor(args.gpu_log_path)
-    config = Config(server_config=server_config, prompt_config=prompt_config)
+    config = Config(server_config=server_config, prompt_config=prompt_config, served_model_name=args.served_model_name)
     server = ServerOnline(model_path=args.model_path,
                            data_path=args.data_path,
                            backend="vllm",
